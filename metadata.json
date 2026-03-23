@@ -1,0 +1,7 @@
+{
+  "name": "Hexaflex Explorer Interactive",
+  "description": "An interactive, visually immersive guide to the ACT Hexaflex model using generative AI for deep insights. NOW with enhanced on-line updates.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
