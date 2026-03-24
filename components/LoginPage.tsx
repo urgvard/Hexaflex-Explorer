@@ -34,9 +34,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     const cleanUser = username.replace(/\s/g, '');
     const cleanPass = password.replace(/\s/g, '');
     
-    // Credentials: M@l1n / M@ri@ (or M@r1@)
-    // Supporting both to ensure robustness based on prompt history
-    if (cleanUser === 'M@l1n' && (cleanPass === 'M@ri@' || cleanPass === 'M@r1@')) {
+    const validUser = import.meta.env.VITE_LOGIN_USER;
+    const validPass = import.meta.env.VITE_LOGIN_PASS;
+    if (cleanUser === validUser && cleanPass === validPass) {
       onLogin();
     } else {
       console.log('Login failed', { cleanUser, cleanPass }); 
