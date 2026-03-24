@@ -17,7 +17,11 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
-        }
-      }
+        },
+        conditions: ['browser', 'module', 'import', 'default'],
+      },
+      optimizeDeps: {
+        include: ['@google/genai'],
+      },
     };
 });

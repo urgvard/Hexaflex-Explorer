@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
 import SignUpPage from './components/SignUpPage';
 import PendingApprovalPage from './components/PendingApprovalPage';
+import IntroPage from './components/IntroPage';
 import AdminPanel from './components/AdminPanel';
 import { supabase, Profile } from './lib/supabase';
 import HexagonVisual from './components/HexagonVisual';
@@ -85,7 +86,7 @@ const BG_PRESETS: BgPreset[] = [
 
 const App: React.FC = () => {
   // Auth state
-  const [authScreen, setAuthScreen] = useState<'login' | 'signup' | 'pending' | 'app'>('login');
+  const [authScreen, setAuthScreen] = useState<'login' | 'signup' | 'pending' | 'intro' | 'app'>('login');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -117,14 +118,20 @@ const App: React.FC = () => {
     if (data) {
       setProfile(data);
       if (data.role === 'super_admin' || data.role === 'approved') {
-        setAuthScreen('app');
+        // Show intro screen once per session, then go straight to app
+        const introSeen = sessionStorage.getItem('hexaflex_intro_seen');
+        setAuthScreen(introSeen ? 'app' : 'intro');
       } else {
         setAuthScreen('pending');
       }
     }
   };
 
-  const isAuthenticated = authScreen === 'app';
+  const handleIntroEnter = () => {
+    sessionStorage.setItem('hexaflex_intro_seen', 'true');
+    setAuthScreen('app');
+  };
+
 
   // Global State with LocalStorage Initialization
   const [lang, setLang] = useState<Language>(() => {
@@ -270,11 +277,12 @@ const App: React.FC = () => {
       return 'scale-100';
   };
   
-  if (!isAuthenticated) {
+  if (authScreen !== 'app') {
     if (!authChecked) return null; // Brief pause while session loads
     if (authScreen === 'signup') return <SignUpPage onBackToLogin={() => setAuthScreen('login')} onSignedUp={() => setAuthScreen('pending')} />;
     if (authScreen === 'pending') return <PendingApprovalPage email={profile?.email ?? ''} />;
-    if (!isAuthenticated) return <LoginPage onSignUpClick={() => setAuthScreen('signup')} />;
+    if (authScreen === 'intro') return <IntroPage onEnter={handleIntroEnter} lang={lang} />;
+    return <LoginPage onSignUpClick={() => setAuthScreen('signup')} />;
   }
 
   return (
