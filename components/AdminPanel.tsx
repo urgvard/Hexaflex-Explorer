@@ -23,13 +23,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
     const fetchData = useCallback(async () => {
         setLoading(true);
-        const [profilesRes, settingsRes] = await Promise.all([
-            supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-            supabase.from('app_settings').select('*').eq('id', 1).single(),
-        ]);
-        if (profilesRes.data) setProfiles(profilesRes.data);
-        if (settingsRes.data) setSettings(settingsRes.data);
-        setLoading(false);
+        try {
+            const [profilesRes, settingsRes] = await Promise.all([
+                supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+                supabase.from('app_settings').select('*').eq('id', 1).single(),
+            ]);
+            if (profilesRes.data) setProfiles(profilesRes.data);
+            if (settingsRes.data) setSettings(settingsRes.data);
+        } catch (err) {
+            console.error('Admin panel fetch error:', err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => { fetchData(); }, [fetchData]);
