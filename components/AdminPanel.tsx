@@ -275,6 +275,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                                             value={newPassword}
                                             onChange={e => setNewPassword(e.target.value)}
                                             placeholder="New password (min. 8 characters)"
+                                            autoComplete="new-password"
+                                            name="new-password"
                                             className="w-full bg-slate-800/60 border border-slate-600/40 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60 pr-10"
                                         />
                                         <button
@@ -290,6 +292,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                                         value={confirmPassword}
                                         onChange={e => setConfirmPassword(e.target.value)}
                                         placeholder="Confirm new password"
+                                        autoComplete="new-password"
+                                        name="confirm-new-password"
                                         className="w-full bg-slate-800/60 border border-slate-600/40 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/60"
                                     />
                                     {passwordMsg && (

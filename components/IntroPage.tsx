@@ -13,83 +13,80 @@ const IntroPage: React.FC<IntroPageProps> = ({ onEnter, lang }) => {
     const t = UI_TEXT[lang];
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center bg-[#0f172a] text-slate-100">
+        <div className="relative w-screen h-screen overflow-hidden flex flex-col bg-[#0f172a] text-slate-100">
             {/* Background blobs */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-30%] left-[-20%] w-[80%] h-[80%] rounded-full blur-[140px] bg-indigo-900 opacity-60" />
-                <div className="absolute bottom-[-30%] right-[-20%] w-[80%] h-[80%] rounded-full blur-[140px] bg-emerald-900 opacity-60" />
-                <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] rounded-full blur-[100px] bg-purple-900 opacity-60" />
+                <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full blur-[140px] bg-indigo-900 opacity-70" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full blur-[140px] bg-emerald-900 opacity-70" />
+                <div className="absolute top-[30%] right-[20%] w-[40%] h-[40%] rounded-full blur-[120px] bg-purple-900 opacity-50" />
             </div>
 
+            {/* Header */}
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="relative z-10 flex flex-col items-center max-w-2xl w-full px-6 gap-8"
+                transition={{ duration: 0.7 }}
+                className="relative z-10 flex flex-col items-center pt-12 pb-6 shrink-0"
             >
-                {/* Logo */}
+                <h1 className="text-6xl font-serif tracking-wider text-white">HEXAFLEX</h1>
+                <p className="text-xs font-bold uppercase tracking-[0.35em] opacity-40 mt-2">
+                    {t.subtitle}
+                </p>
+            </motion.div>
+
+            {/* Concept Cards — fills remaining space */}
+            <div className="relative z-10 flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 px-10 pb-6 min-h-0">
                 <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.7 }}
-                    className="text-center mb-2"
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25, duration: 0.7 }}
+                    className="flex flex-col p-10 rounded-3xl border bg-white/5 border-white/10 text-white/85 backdrop-blur-md overflow-y-auto"
                 >
-                    <h1 className="text-5xl font-serif tracking-wider text-white">HEXAFLEX</h1>
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] opacity-50 mt-1">
-                        {t.subtitle}
+                    <div className="flex items-center gap-3 mb-5 opacity-80">
+                        <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest">
+                            {t.conceptActTitle}
+                        </h3>
+                    </div>
+                    <p className="text-lg font-medium leading-relaxed font-serif italic flex-1">
+                        {t.conceptActContent}
                     </p>
+                    <div className="mt-6 h-0.5 w-12 rounded-full bg-white/20" />
                 </motion.div>
 
-                {/* Concept Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3, duration: 0.7 }}
-                        className="p-6 rounded-3xl border bg-white/5 border-white/10 text-white/80 backdrop-blur-md"
-                    >
-                        <div className="flex items-center gap-2 mb-3 opacity-70">
-                            <Sparkles className="w-4 h-4 text-amber-400" />
-                            <h3 className="text-xs font-bold uppercase tracking-widest">
-                                {t.conceptActTitle}
-                            </h3>
-                        </div>
-                        <p className="text-sm font-medium leading-relaxed font-serif italic">
-                            {t.conceptActContent}
-                        </p>
-                        <div className="mt-4 h-0.5 w-8 rounded-full bg-white/20" />
-                    </motion.div>
+                <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35, duration: 0.7 }}
+                    className="flex flex-col p-10 rounded-3xl border bg-white/5 border-white/10 text-white/85 backdrop-blur-md overflow-y-auto"
+                >
+                    <div className="flex items-center gap-3 mb-5 opacity-80">
+                        <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest">
+                            {t.conceptHexagonTitle}
+                        </h3>
+                    </div>
+                    <p className="text-lg font-medium leading-relaxed font-serif italic flex-1">
+                        {t.conceptHexagonContent}
+                    </p>
+                    <div className="mt-6 h-0.5 w-12 rounded-full bg-white/20" />
+                </motion.div>
+            </div>
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4, duration: 0.7 }}
-                        className="p-6 rounded-3xl border bg-white/5 border-white/10 text-white/80 backdrop-blur-md"
-                    >
-                        <div className="flex items-center gap-2 mb-3 opacity-70">
-                            <Sparkles className="w-4 h-4 text-amber-400" />
-                            <h3 className="text-xs font-bold uppercase tracking-widest">
-                                {t.conceptHexagonTitle}
-                            </h3>
-                        </div>
-                        <p className="text-sm font-medium leading-relaxed font-serif italic">
-                            {t.conceptHexagonContent}
-                        </p>
-                        <div className="mt-4 h-0.5 w-8 rounded-full bg-white/20" />
-                    </motion.div>
-                </div>
-
-                {/* Enter Button */}
-                <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.7 }}
+            {/* Enter Button */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.7 }}
+                className="relative z-10 flex justify-center pb-10 shrink-0"
+            >
+                <button
                     onClick={onEnter}
-                    className="flex items-center gap-3 px-10 py-4 rounded-full bg-white/10 border border-white/20 text-white font-semibold hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
+                    className="flex items-center gap-3 px-12 py-4 rounded-full bg-white/10 border border-white/20 text-white text-lg font-semibold hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
                 >
                     <span>{lang === 'sv' ? 'Utforska Hexaflex' : 'Enter Hexaflex'}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
+                </button>
             </motion.div>
 
             {/* Copyright */}

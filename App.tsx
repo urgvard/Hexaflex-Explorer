@@ -92,18 +92,33 @@ const App: React.FC = () => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Check existing session on mount
+    // Check existing session on mount — always call setAuthChecked(true) even on error
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await loadProfile(session.user.id);
+      try {
+        if (session?.user) {
+          await loadProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error('Session load error:', err);
+        // Clear broken session so user sees login page instead of white screen
+        await supabase.auth.signOut().catch(() => {});
+      } finally {
+        setAuthChecked(true);
       }
+    }).catch(() => {
+      // Network error during getSession — still show login page
       setAuthChecked(true);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        await loadProfile(session.user.id);
+        try {
+          await loadProfile(session.user.id);
+        } catch (err) {
+          console.error('Auth change profile load error:', err);
+          await supabase.auth.signOut().catch(() => {});
+        }
       } else {
         setProfile(null);
         setAuthScreen('login');
@@ -114,7 +129,8 @@ const App: React.FC = () => {
   }, []);
 
   const loadProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (error) throw error; // Let the caller handle it
     if (data) {
       setProfile(data);
       if (data.role === 'super_admin' || data.role === 'approved') {
@@ -124,6 +140,9 @@ const App: React.FC = () => {
       } else {
         setAuthScreen('pending');
       }
+    } else {
+      // No profile found — sign out to reset state
+      await supabase.auth.signOut().catch(() => {});
     }
   };
 
@@ -512,28 +531,6 @@ const App: React.FC = () => {
           </motion.button>
       </div>
 
-      {/* ACT Therapy Concept Box - Updated Style */}
-      <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className={`absolute top-40 left-12 max-w-[360px] z-10 p-6 rounded-3xl border backdrop-blur-md hidden lg:block transition-all duration-700 ${
-              theme === 'dark' 
-              ? 'bg-white/5 border-white/10 text-white/80' 
-              : 'bg-white/40 border-slate-200 text-slate-700'
-          }`}
-      >
-          <div className="flex items-center gap-2 mb-2 opacity-70">
-               <Sparkles className="w-4 h-4 text-amber-400" />
-               <h3 className="text-xs font-bold uppercase tracking-widest">
-                  {t.conceptActTitle}
-              </h3>
-          </div>
-          <p className="text-base font-medium leading-relaxed font-serif italic">
-              {t.conceptActContent}
-          </p>
-          <div className={`mt-3 h-0.5 w-8 rounded-full transition-all duration-500 ${theme === 'dark' ? 'bg-white/20' : 'bg-slate-400/20'}`} />
-      </motion.div>
 
       {/* Hint Toast (Bottom Center) */}
       <AnimatePresence>
@@ -575,28 +572,6 @@ const App: React.FC = () => {
              </div>
         </motion.div>
 
-      {/* Hexagon Theory Concept Box - Updated Style */}
-      <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className={`absolute bottom-12 left-12 max-w-[360px] z-10 p-6 rounded-3xl border backdrop-blur-md hidden lg:block transition-all duration-700 ${
-              theme === 'dark' 
-              ? 'bg-white/5 border-white/10 text-white/80' 
-              : 'bg-white/40 border-slate-200 text-slate-700'
-          }`}
-      >
-          <div className="flex items-center gap-2 mb-2 opacity-70">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-bold uppercase tracking-widest">
-                  {t.conceptHexagonTitle}
-              </h3>
-          </div>
-          <p className="text-base font-medium leading-relaxed font-serif italic">
-              {t.conceptHexagonContent}
-          </p>
-          <div className={`mt-3 h-0.5 w-8 rounded-full transition-all duration-500 ${theme === 'dark' ? 'bg-white/20' : 'bg-slate-400/20'}`} />
-      </motion.div>
 
       {/* Mobile Music Player */}
       <div className="md:hidden px-6 pb-2 flex justify-center z-40 relative">
