@@ -1,6 +1,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
+import SignUpPage from './components/SignUpPage';
+import PendingApprovalPage from './components/PendingApprovalPage';
+import AdminPanel from './components/AdminPanel';
+import { supabase, Profile } from './lib/supabase';
 import HexagonVisual from './components/HexagonVisual';
 import DetailPanel from './components/DetailPanel';
 import SynergyPanel from './components/SynergyPanel';
@@ -80,7 +84,47 @@ const BG_PRESETS: BgPreset[] = [
 ];
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Auth state
+  const [authScreen, setAuthScreen] = useState<'login' | 'signup' | 'pending' | 'app'>('login');
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    // Check existing session on mount
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        await loadProfile(session.user.id);
+      }
+      setAuthChecked(true);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await loadProfile(session.user.id);
+      } else {
+        setProfile(null);
+        setAuthScreen('login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadProfile = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (data) {
+      setProfile(data);
+      if (data.role === 'super_admin' || data.role === 'approved') {
+        setAuthScreen('app');
+      } else {
+        setAuthScreen('pending');
+      }
+    }
+  };
+
+  const isAuthenticated = authScreen === 'app';
 
   // Global State with LocalStorage Initialization
   const [lang, setLang] = useState<Language>(() => {
@@ -227,7 +271,10 @@ const App: React.FC = () => {
   };
   
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+    if (!authChecked) return null; // Brief pause while session loads
+    if (authScreen === 'signup') return <SignUpPage onBackToLogin={() => setAuthScreen('login')} onSignedUp={() => setAuthScreen('pending')} />;
+    if (authScreen === 'pending') return <PendingApprovalPage email={profile?.email ?? ''} />;
+    if (!isAuthenticated) return <LoginPage onSignUpClick={() => setAuthScreen('signup')} />;
   }
 
   return (
@@ -680,6 +727,24 @@ const App: React.FC = () => {
           </a>
         </p>
       </div>
+
+      {/* Admin Panel Button — visible only to super_admin */}
+      {profile?.role === 'super_admin' && (
+        <button
+          onClick={() => setIsAdminOpen(true)}
+          className={`absolute bottom-3 left-4 z-10 p-1.5 rounded-lg transition-all opacity-30 hover:opacity-80 ${theme === 'dark' ? 'text-white hover:bg-white/10' : 'text-slate-500 hover:bg-black/5'}`}
+          title="Admin Panel"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Admin Panel Modal */}
+      <AnimatePresence>
+        {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 };
