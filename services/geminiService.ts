@@ -3,7 +3,12 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { GeminiInsight, SynergyInsight, ActionPlan, DefusionResult, MindfulnessSession, Language, StudyQuestion, StudyFeedback, DeepDefusionResponse, RecoveryInsight, AlcoholToolkit, IkeaManual, TwisterMove, RPGProfile, DinnerScenario, PopUpAd } from "../types";
 import { GEMINI_MODEL, GEMINI_TTS_MODEL } from "../constants";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = (): GoogleGenAI => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is not set.");
+    return new GoogleGenAI({ apiKey });
+};
+const ai = getAI();
 
 const model = GEMINI_MODEL;
 const ttsModel = GEMINI_TTS_MODEL;
